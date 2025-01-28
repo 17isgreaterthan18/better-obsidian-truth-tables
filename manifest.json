@@ -5,7 +5,6 @@
 	"minAppVersion": "0.15.0",
 	"description": "Automatically generate and populate truth tables",
 	"author": "17isgreaterthan18",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "https://github.com/17isgreaterthan18",
 	"isDesktopOnly": false
 }
