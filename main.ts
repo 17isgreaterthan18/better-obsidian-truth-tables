@@ -2,11 +2,11 @@ import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting, No
 import * as ohm from 'ohm-js'; 
 
 interface BetterTruthTablesSettings {
-	defaultValueFormat: string[];
+	defaultValueFormat: string;
 }
 
 const DEFAULT_SETTINGS: Partial<BetterTruthTablesSettings> = {
-	defaultValueFormat: ['F', 'T'],
+	defaultValueFormat: 'T/F',
 }
 
 const GRAMMAR = ohm.grammar(String.raw`
@@ -66,14 +66,6 @@ export default class BetterTruthTables extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
@@ -106,7 +98,7 @@ class InsertTruthTableModal extends Modal {
 		const {contentEl} = this;
 		this.setTitle("Insert Truth Table");
 
-		this.valueFormat = ['0', '1']
+		this.valueFormat = this.plugin.settings.defaultValueFormat.split('/').reverse();
 		new Setting(contentEl) // value format
 		.setName('Value format')
 		.setDesc('Style of values')
@@ -120,7 +112,8 @@ class InsertTruthTableModal extends Modal {
 				'yes/no': 'yes/no',
 				'Yes/No': 'Yes/No',
 			});
-			dropdown.setValue(this.plugin.settings.defaultValueFormat.reverse().join('/'));
+			dropdown.setValue(this.plugin.settings.defaultValueFormat);
+			console.log(this.plugin.settings.defaultValueFormat);
 			dropdown.onChange((val) => this.valueFormat = val.split('/').reverse());
 		});
 
@@ -137,7 +130,7 @@ class InsertTruthTableModal extends Modal {
 		.setName('Inputs')
 		.setDesc('Comma seperated list of input variables')
 		.addText((text) => {
-			text.setPlaceholder('e.g.: p, q, r, \\alpha');
+			text.setPlaceholder('e.g.: p, q, r');
 			text.onChange(val => this.inputs = val.replace(/s+/, '').split(','));
 		});
 
@@ -263,10 +256,9 @@ class SampleSettingTab extends PluginSettingTab {
 					'yes/no': 'yes/no',
 					'Yes/No': 'Yes/No',
 				});
-				dropdown.setValue('0/1');
+				dropdown.setValue(this.plugin.settings.defaultValueFormat);
 				dropdown.onChange(async (val) => {
-					this.plugin.settings.defaultValueFormat = val
-					.split('/').reverse();
+					this.plugin.settings.defaultValueFormat = val;
 					await this.plugin.saveSettings();
 				});
 			});
