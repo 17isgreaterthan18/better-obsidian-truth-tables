@@ -2,11 +2,11 @@ import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting, No
 import * as ohm from 'ohm-js'; 
 
 interface BetterTruthTablesSettings {
-	mySetting: string;
+	defaultValueFormat: string[];
 }
 
-const DEFAULT_SETTINGS: BetterTruthTablesSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: Partial<BetterTruthTablesSettings> = {
+	defaultValueFormat: ['F', 'T'],
 }
 
 const GRAMMAR = ohm.grammar(String.raw`
@@ -59,7 +59,7 @@ export default class BetterTruthTables extends Plugin {
 			id: 'insert-truth-table',
 			name: 'Insert truth table',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				new InsertTruthTableModal(this.app, editor).open();
+				new InsertTruthTableModal(this.app, editor, this).open();
 			}
 		});
 
@@ -95,9 +95,11 @@ class InsertTruthTableModal extends Modal {
 	inlineMath: any;
 	valueFormat: string[];
 	editor: Editor;
-	constructor(app: App, editor : Editor) {
+	plugin: BetterTruthTables;
+	constructor(app: App, editor : Editor, plugin : BetterTruthTables) {
 		super(app);
 		this.editor = editor;
+		this.plugin = plugin;
 	}
 	
 	onOpen() {
@@ -110,7 +112,7 @@ class InsertTruthTableModal extends Modal {
 		.setDesc('Style of values')
 		.addDropdown((dropdown) => {
 			dropdown.addOptions({
-				'0/1': '0/1',
+				'1/0': '1/0',
 				'T/F': 'T/F',
 				'true/false': 'true/false',
 				'True/False': 'True/False',
@@ -118,7 +120,7 @@ class InsertTruthTableModal extends Modal {
 				'yes/no': 'yes/no',
 				'Yes/No': 'Yes/No',
 			});
-			dropdown.setValue('0/1');
+			dropdown.setValue(this.plugin.settings.defaultValueFormat.reverse().join('/'));
 			dropdown.onChange((val) => this.valueFormat = val.split('/').reverse());
 		});
 
@@ -135,7 +137,7 @@ class InsertTruthTableModal extends Modal {
 		.setName('Inputs')
 		.setDesc('Comma seperated list of input variables')
 		.addText((text) => {
-			text.setPlaceholder('e.g.: p, q, r');
+			text.setPlaceholder('e.g.: p, q, r, \\alpha');
 			text.onChange(val => this.inputs = val.replace(/s+/, '').split(','));
 		});
 
@@ -143,7 +145,7 @@ class InsertTruthTableModal extends Modal {
 		.setName('Outputs')
 		.setDesc('Comma seperated list of output expressions')
 		.addTextArea((ta) => {
-			ta.setPlaceholder('e.g.: !p+q, !(p.q)');
+			ta.setPlaceholder('e.g.: !p+q, !(p.q), switchOne || a & !b');
 			ta.onChange(val => {this.outputs = val.replace(/s+/, '').split(',');});
 		});
 
@@ -249,14 +251,24 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+			.setName('Default Value Format')
+			.setDesc('Default format for boolean values')
+			.addDropdown( (dropdown) => {
+				dropdown.addOptions({
+					'1/0': '1/0',
+					'T/F': 'T/F',
+					'true/false': 'true/false',
+					'True/False': 'True/False',
+					'Y/N': 'Y/N',
+					'yes/no': 'yes/no',
+					'Yes/No': 'Yes/No',
+				});
+				dropdown.setValue('0/1');
+				dropdown.onChange(async (val) => {
+					this.plugin.settings.defaultValueFormat = val
+					.split('/').reverse();
 					await this.plugin.saveSettings();
-				}));
+				});
+			});
+		}
 	}
-}
