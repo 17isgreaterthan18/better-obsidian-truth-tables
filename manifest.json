@@ -1,7 +1,7 @@
 {
 	"id": "better-truth-tables",
 	"name": "Better Truth Tables",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"minAppVersion": "1.8.4",
 	"description": "Automatically generate and populate truth tables.",
 	"author": "17isgreaterthan18",
