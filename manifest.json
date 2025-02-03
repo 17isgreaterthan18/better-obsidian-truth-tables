@@ -2,8 +2,8 @@
 	"id": "better-truth-tables",
 	"name": "Better Truth Tables",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Automatically generate and populate truth tables",
+	"minAppVersion": "1.8.4",
+	"description": "Automatically generate and populate truth tables.",
 	"author": "17isgreaterthan18",
 	"authorUrl": "https://github.com/17isgreaterthan18",
 	"isDesktopOnly": false
