@@ -64,7 +64,7 @@ export default class BetterTruthTables extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new BetterTruthTablesSettingTab(this.app, this));
 
 	}
 
@@ -230,7 +230,7 @@ class InsertTruthTableModal extends Modal {
 }
 
 
-class SampleSettingTab extends PluginSettingTab {
+class BetterTruthTablesSettingTab extends PluginSettingTab {
 	plugin: BetterTruthTables;
 
 	constructor(app: App, plugin: BetterTruthTables) {
